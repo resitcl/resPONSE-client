@@ -2121,13 +2121,9 @@ module.exports =
   
   var reports = [],
       crons = [];
+  var URL = "http://192.168.99.100:8001";
   
-  // It's a data format example.
-  function priceFormatter(cell, row) {
-    return '<i class="glyphicon glyphicon-usd"></i> ' + cell;
-  }
-  
-  function actionsFormatter(cell, row) {
+  function reportActionsFormatter(cell, row) {
     return _react2.default.createElement(
       'button',
       { className: 'btn btn-danger' },
@@ -2179,28 +2175,36 @@ module.exports =
       var _this = (0, _possibleConstructorReturn3.default)(this, (Reports.__proto__ || (0, _getPrototypeOf2.default)(Reports)).call(this, props));
   
       _this.state = { data: {} };
+      _this.cronActionsFormatter = _this.cronActionsFormatter.bind(_this);
+      _this.loadCrons = _this.loadCrons.bind(_this);
+      _this.loadReports = _this.loadReports.bind(_this);
+      _this.deleteCron = _this.deleteCron.bind(_this);
       return _this;
     }
   
     (0, _createClass3.default)(Reports, [{
-      key: 'componentDidMount',
-      value: function componentDidMount() {
-        console.log("fetching");
+      key: 'deleteCron',
+      value: function deleteCron(cell) {
+        console.log(cell); /*
+                           $.ajax({
+                           url: URL + "/cron/" + cell._id,
+                           dataType: 'json',
+                           crossDomain: true,
+                           type: 'DELETE',
+                           cache: false,
+                           success: function(data) {
+                           this.loadCrons();
+                           }.bind(this),
+                           error: function(xhr, status, err) {
+                           console.log("url", status, err.toString());
+                           }.bind(this)
+                           });*/
+      }
+    }, {
+      key: 'loadCrons',
+      value: function loadCrons() {
         _jquery2.default.ajax({
-          url: "http://192.168.99.100:8001/report",
-          dataType: 'json',
-          crossDomain: true,
-          cache: false,
-          success: function (data) {
-            reports = data;
-            this.setState({ data: data });
-          }.bind(this),
-          error: function (xhr, status, err) {
-            console.log("url", status, err.toString());
-          }.bind(this)
-        });
-        _jquery2.default.ajax({
-          url: "http://192.168.99.100:8001/cron",
+          url: URL + "/cron",
           dataType: 'json',
           crossDomain: true,
           cache: false,
@@ -2212,6 +2216,44 @@ module.exports =
             console.log("url", status, err.toString());
           }.bind(this)
         });
+      }
+    }, {
+      key: 'loadReports',
+      value: function loadReports() {
+        _jquery2.default.ajax({
+          url: URL + "/report",
+          dataType: 'json',
+          crossDomain: true,
+          cache: false,
+          success: function (data) {
+            reports = data;
+            this.setState({ data: data });
+          }.bind(this),
+          error: function (xhr, status, err) {
+            console.log("url", status, err.toString());
+          }.bind(this)
+        });
+      }
+    }, {
+      key: 'cronActionsFormatter',
+      value: function cronActionsFormatter(cell, row) {
+        var _this2 = this;
+  
+        return _react2.default.createElement(
+          'button',
+          { className: 'btn btn-danger' },
+          _react2.default.createElement('span', { onClick: function onClick() {
+              return _this2.deleteCron(cell);
+            }, className: 'glyphicon glyphicon-trash' }),
+          ' Delete'
+        );
+      }
+    }, {
+      key: 'componentDidMount',
+      value: function componentDidMount() {
+        console.log("fetching");
+        this.loadReports();
+        this.loadCrons();
       }
     }, {
       key: 'render',
@@ -2277,7 +2319,7 @@ module.exports =
                       ),
                       _react2.default.createElement(
                         _reactBootstrapTable.TableHeaderColumn,
-                        { width: '150', dataField: 'action', dataFormat: actionsFormatter, 'export': false },
+                        { width: '150', dataField: 'action', dataFormat: reportActionsFormatter, 'export': false },
                         'Actions'
                       )
                     )
@@ -2344,7 +2386,7 @@ module.exports =
                       ),
                       _react2.default.createElement(
                         _reactBootstrapTable.TableHeaderColumn,
-                        { width: '150', dataField: 'action', dataFormat: actionsFormatter, 'export': false },
+                        { width: '150', dataField: 'action', dataFormat: this.cronActionsFormatter, 'export': false },
                         'Actions'
                       )
                     )

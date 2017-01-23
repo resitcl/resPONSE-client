@@ -1,22 +1,17 @@
 
 import {
-  MenuItem,
-  DropdownButton,
-  Panel, PageHeader, ListGroup, ListGroupItem, Button,
-  FormGroup, FieldGroup, Col, Checkbox,
+  Panel, PageHeader, Col, FormGroup, Checkbox,
 } from 'react-bootstrap';
 import React, { Component, PropTypes  } from 'react';
 import { BootstrapTable, TableHeaderColumn } from 'react-bootstrap-table';
 import withStyles from 'isomorphic-style-loader/lib/withStyles';
 import $ from 'jquery';
 var reports = [], crons = [];
+var URL = "http://192.168.99.100:8001";
 
-// It's a data format example.
-function priceFormatter(cell, row){
-  return '<i class="glyphicon glyphicon-usd"></i> ' + cell;
-}
 
-function actionsFormatter(cell, row) {
+
+function reportActionsFormatter(cell, row) {
   return (
     <button className='btn btn-danger'>
       <span className="glyphicon glyphicon-trash"></span> Delete
@@ -57,25 +52,32 @@ class Reports extends Component {
   constructor(props) {
     super(props);
     this.state = {data: {}};
+    this.cronActionsFormatter = this.cronActionsFormatter.bind(this);
+    this.loadCrons = this.loadCrons.bind(this);
+    this.loadReports = this.loadReports.bind(this);
+    this.deleteCron = this.deleteCron.bind(this);
   }
 
-  componentDidMount(){
-    console.log("fetching");
+  deleteCron(cell){
+    console.log(cell);/*
     $.ajax({
-      url: "http://192.168.99.100:8001/report",
+      url: URL + "/cron/" + cell._id,
       dataType: 'json',
       crossDomain: true,
+      type: 'DELETE',
       cache: false,
       success: function(data) {
-        reports = data;
-        this.setState({data: data});
+        this.loadCrons();
       }.bind(this),
       error: function(xhr, status, err) {
         console.log("url", status, err.toString());
       }.bind(this)
-    });
+    });*/
+  }
+
+  loadCrons(){
     $.ajax({
-      url: "http://192.168.99.100:8001/cron",
+      url: URL + "/cron",
       dataType: 'json',
       crossDomain: true,
       cache: false,
@@ -87,6 +89,36 @@ class Reports extends Component {
         console.log("url", status, err.toString());
       }.bind(this)
     });
+  }
+
+  loadReports(){
+    $.ajax({
+      url: URL + "/report",
+      dataType: 'json',
+      crossDomain: true,
+      cache: false,
+      success: function(data) {
+        reports = data;
+        this.setState({data: data});
+      }.bind(this),
+      error: function(xhr, status, err) {
+        console.log("url", status, err.toString());
+      }.bind(this)
+    });
+  }
+
+  cronActionsFormatter(cell, row) {
+    return (
+      <button className='btn btn-danger'>
+        <span onClick={() => this.deleteCron(cell)} className="glyphicon glyphicon-trash"></span> Delete
+      </button>
+    );
+  }
+
+  componentDidMount(){
+    console.log("fetching");
+    this.loadReports();
+    this.loadCrons();
   }
 
   render(){
@@ -109,7 +141,7 @@ class Reports extends Component {
                     <TableHeaderColumn width='180' filter={ { type: 'TextFilter', delay: 1000 } } dataField="url" dataSort={true}>URL</TableHeaderColumn>
                     <TableHeaderColumn width='300' dataField="info" >Info</TableHeaderColumn>
                     <TableHeaderColumn width='150' filter={ { type: 'TextFilter', delay: 1000 } } dataField="statusCode" >Status Code</TableHeaderColumn>
-                    <TableHeaderColumn width='150' dataField='action' dataFormat={ actionsFormatter } export={ false }>Actions</TableHeaderColumn>
+                    <TableHeaderColumn width='150' dataField='action' dataFormat={ reportActionsFormatter } export={ false }>Actions</TableHeaderColumn>
                   </BootstrapTable>
                 </div>
               </div>
@@ -133,7 +165,7 @@ class Reports extends Component {
                     <TableHeaderColumn width='180' filter={ { type: 'TextFilter', delay: 1000 } } dataField="url" dataSort={true}>URL</TableHeaderColumn>
                     <TableHeaderColumn width='50' dataField="interval" >Interval</TableHeaderColumn>
                     <TableHeaderColumn width='150' dataField="codes" dataFormat={ codesFormatter }>Status Code</TableHeaderColumn>
-                    <TableHeaderColumn width='150' dataField='action' dataFormat={ actionsFormatter } export={ false }>Actions</TableHeaderColumn>
+                    <TableHeaderColumn width='150' dataField='action' dataFormat={ this.cronActionsFormatter } export={ false }>Actions</TableHeaderColumn>
                   </BootstrapTable>
                 </div>
               </div>

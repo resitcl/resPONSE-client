@@ -53,38 +53,38 @@ class Newcron extends Component {
     if(this.isURL(this.state.url) &&
     this.checkedAnyStatus()){
       var newState = update(this.state, {
-        error: { visible:  {$set: false },
-        description: {$set: ''}
-      }
-    });
-    this.setState(newState);
-    this.postNewCron();
-  } else {
+          error: { visible:  {$set: false },
+          description: {$set: ''}
+        }
+      });
+      this.setState(newState);
+      this.postNewCron();
+    } else {
     var newState = update(this.state, {
       error: { visible:  {$set: true },
       description: {$set: 'Invalid URL or missing checked statuses'}
     }
-  });
-  this.setState(newState);
-}
-}
+    });
+    this.setState(newState);
+  }
+  }
 
 postNewCron(){
-console.log("posting");
-$.ajax({
-  url: "http://192.168.99.100:8001/cron",
-  dataType: 'json',
-  crossDomain: true,
-  cache: false,
-  type: "post",
-  data: this.state,
-  success: function(data) {
-    console.log("success");
-  }.bind(this),
-  error: function(xhr, status, err) {
-    console.log("url", status, err.toString());
-  }.bind(this)
-});
+  console.log("posting");
+  $.ajax({
+    url: "http://192.168.99.100:8001/cron",
+    dataType: 'json',
+    crossDomain: true,
+    cache: false,
+    type: "post",
+    data: this.state,
+    success: function(data) {
+      console.log("success");
+    }.bind(this),
+    error: function(xhr, status, err) {
+      console.log("url", status, err.toString());
+    }.bind(this)
+  });
 }
 
 handleChange(e) {
