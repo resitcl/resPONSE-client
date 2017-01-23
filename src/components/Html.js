@@ -14,6 +14,7 @@ function Html({ title, description, style, script, children }) {
         <link rel="stylesheet" href="/css/bootstrap-social.css" />
         <link rel="stylesheet" href="/css/font-awesome.min.css" />
         <link rel="stylesheet" href="/css/sb-admin.css" />
+        <link rel="stylesheet" href="/css/bootstrap-table.min.css" />
         <style id="css" dangerouslySetInnerHTML={{ __html: style }} />
 
         <link rel="apple-touch-icon" sizes="57x57" href="apple-icon-57x57.png"/>
@@ -32,7 +33,7 @@ function Html({ title, description, style, script, children }) {
         <link rel="manifest" href="manifest.json"/>
         <meta name="msapplication-TileColor" content="#ffffff"/>
         <meta name="msapplication-TileImage" content="ms-icon-144x144.png"/>
-        <meta name="theme-color" content="#ffffff"/> 
+        <meta name="theme-color" content="#ffffff"/>
 
       </head>
       <body>
