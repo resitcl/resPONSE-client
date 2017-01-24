@@ -13,4 +13,5 @@ COPY . /usr/src/app
 
 EXPOSE 8080
 
-CMD [ "npm", "start" ]
+RUN npm run build -- --release
+CMD [ "npm", "run start --production" ]

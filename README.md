@@ -28,3 +28,5 @@ $ docker-compose up -d
 ```
 
 ## TODO
+- Link formatting
+- Single report or cron view

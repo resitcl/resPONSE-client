@@ -21,8 +21,11 @@ import FormControlStatic from 'react-bootstrap/lib/FormControlStatic';
 import InputGroupAddon from 'react-bootstrap/lib/InputGroupAddon';
 import Alert from 'react-bootstrap/lib/Alert';
 import $ from 'jquery';
+import history from '../../core/history';
 
 const title = 'New Notification';
+
+var URL = "api";
 
 class Newcron extends Component {
 
@@ -70,58 +73,58 @@ class Newcron extends Component {
   }
 
 postNewCron(){
-  console.log("posting");
   $.ajax({
-    url: "http://192.168.99.100:8001/cron",
+    url: URL + "/cron",
     dataType: 'json',
     crossDomain: true,
+    contentType: "application/json;charset=utf-8",
     cache: false,
-    type: "post",
-    data: this.state,
+    type: "POST",
+    data: JSON.stringify(this.state),
     success: function(data) {
-      console.log("success");
+      history.push('/');
     }.bind(this),
     error: function(xhr, status, err) {
-      console.log("url", status, err.toString());
+      var newState = update(this.state, {
+        error: { visible:  {$set: true },
+        description: {$set: 'There was an error posting the CRON'}
+      }
+      });
+      this.setState(newState);
     }.bind(this)
   });
 }
 
 handleChange(e) {
-this.setState({[e.target.name]: e.target.value});
+  this.setState({[e.target.name]: e.target.value});
 }
 
 handleCodeSelect(e){
-var newState = update(this.state, {
-  codes: { [e.target.name]: {$set: e.target.checked } }
-});
-this.setState(newState);
+  var newState = update(this.state, {
+    codes: { [e.target.name]: {$set: e.target.checked } }
+  });
+  this.setState(newState);
 }
 
 checkedAnyStatus(){
-const state = this.state.codes;
-var ret = false;
-for (const key of Object.keys(state)) {
-  const val = state[key];
-  if(val)
-  ret = true;
-}
-return ret;
+  const state = this.state.codes;
+  var ret = false;
+  for (const key of Object.keys(state)) {
+    const val = state[key];
+    if(val)
+    ret = true;
+  }
+  return ret;
 }
 
 isURL(url) {
-var pattern = new RegExp('^(https?:\\/\\/)?'+ // protocol
-'((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.?)+[a-z]{2,}|'+ // domain name
-'((\\d{1,3}\\.){3}\\d{1,3}))'+ // OR ip (v4) address
-'(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ // port and path
-'(\\?[;&a-z\\d%_.~+=-]*)?'+ // query string
-'(\\#[-a-z\\d_]*)?$','i'); // fragment locator
-return pattern.test(url);
+  var urlregex = /^(https?|ftp):\/\/([a-zA-Z0-9.-]+(:[a-zA-Z0-9.&%$-]+)*@)*((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]?)(\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])){3}|([a-zA-Z0-9-]+\.)*[a-zA-Z0-9-]+\.(com|edu|gov|int|mil|net|org|biz|arpa|info|name|pro|aero|coop|museum|[a-zA-Z]{2}))(:[0-9]+)*(\/($|[a-zA-Z0-9.,?'\\+&%$#=~_-]+))*$/;
+  return urlregex.test(url);
 }
 
 isEmail(email) {
-var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-return re.test(email);
+  var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+  return re.test(email);
 }
 
 render(){
@@ -152,7 +155,7 @@ return (
                   onChange={this.handleChange.bind(this)}
                 />
                 <FormControlFeedback />
-                <HelpBlock>www.myapi.com/me</HelpBlock>
+                <HelpBlock>http://www.myapi.com/me</HelpBlock>
               </FormGroup>
 
               <FormGroup controlId="interval">

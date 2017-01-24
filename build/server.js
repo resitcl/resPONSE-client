@@ -1564,24 +1564,6 @@ module.exports =
               { className: 'nav in', id: 'side-menu' },
               _react2.default.createElement(
                 'li',
-                { className: 'sidebar-search' },
-                _react2.default.createElement(
-                  'div',
-                  { className: 'input-group custom-search-form' },
-                  _react2.default.createElement('input', { type: 'text', className: 'form-control', placeholder: 'Search...' }),
-                  _react2.default.createElement(
-                    'span',
-                    { className: 'input-group-btn' },
-                    _react2.default.createElement(
-                      'button',
-                      { className: 'btn btn-default', type: 'button' },
-                      _react2.default.createElement('i', { className: 'fa fa-search' })
-                    )
-                  )
-                )
-              ),
-              _react2.default.createElement(
-                'li',
                 null,
                 _react2.default.createElement(
                   'a',
@@ -2081,6 +2063,10 @@ module.exports =
     value: true
   });
   
+  var _stringify = __webpack_require__(25);
+  
+  var _stringify2 = _interopRequireDefault(_stringify);
+  
   var _getPrototypeOf = __webpack_require__(30);
   
   var _getPrototypeOf2 = _interopRequireDefault(_getPrototypeOf);
@@ -2121,16 +2107,7 @@ module.exports =
   
   var reports = [],
       crons = [];
-  var URL = "http://192.168.99.100:8001";
-  
-  function reportActionsFormatter(cell, row) {
-    return _react2.default.createElement(
-      'button',
-      { className: 'btn btn-danger' },
-      _react2.default.createElement('span', { className: 'glyphicon glyphicon-trash' }),
-      ' Delete'
-    );
-  }
+  var URL = "api";
   
   function codesFormatter(cell, row) {
     if (typeof cell !== 'undefined' && cell !== null) return _react2.default.createElement(
@@ -2141,25 +2118,25 @@ module.exports =
         null,
         _react2.default.createElement(
           _reactBootstrap.Checkbox,
-          { readOnly: true, checked: cell, inline: true },
+          { readOnly: true, checked: row.codes[200], inline: true },
           '2xx'
         ),
         ' ',
         _react2.default.createElement(
           _reactBootstrap.Checkbox,
-          { readOnly: true, checked: cell, inline: true },
+          { readOnly: true, checked: row.codes[300], inline: true },
           '300'
         ),
         ' ',
         _react2.default.createElement(
           _reactBootstrap.Checkbox,
-          { readOnly: true, checked: cell, inline: true },
+          { readOnly: true, checked: row.codes[400], inline: true },
           '400'
         ),
         ' ',
         _react2.default.createElement(
           _reactBootstrap.Checkbox,
-          { readOnly: true, checked: cell },
+          { readOnly: true, checked: row.codes[500] },
           '500'
         )
       )
@@ -2176,31 +2153,13 @@ module.exports =
   
       _this.state = { data: {} };
       _this.cronActionsFormatter = _this.cronActionsFormatter.bind(_this);
+      _this.reportActionsFormatter = _this.reportActionsFormatter.bind(_this);
       _this.loadCrons = _this.loadCrons.bind(_this);
       _this.loadReports = _this.loadReports.bind(_this);
-      _this.deleteCron = _this.deleteCron.bind(_this);
       return _this;
     }
   
     (0, _createClass3.default)(Reports, [{
-      key: 'deleteCron',
-      value: function deleteCron(cell) {
-        console.log(cell); /*
-                           $.ajax({
-                           url: URL + "/cron/" + cell._id,
-                           dataType: 'json',
-                           crossDomain: true,
-                           type: 'DELETE',
-                           cache: false,
-                           success: function(data) {
-                           this.loadCrons();
-                           }.bind(this),
-                           error: function(xhr, status, err) {
-                           console.log("url", status, err.toString());
-                           }.bind(this)
-                           });*/
-      }
-    }, {
       key: 'loadCrons',
       value: function loadCrons() {
         _jquery2.default.ajax({
@@ -2235,16 +2194,108 @@ module.exports =
         });
       }
     }, {
+      key: 'deleteCron',
+      value: function deleteCron(row, event) {
+        console.log(row);
+        _jquery2.default.ajax({
+          url: URL + "/cron/" + row._id,
+          dataType: 'json',
+          crossDomain: true,
+          type: 'DELETE',
+          cache: false,
+          success: function (data) {
+            console.log(data);
+            this.loadCrons();
+          }.bind(this),
+          error: function (xhr, status, err) {
+            console.log("url", status, err.toString());
+          }.bind(this)
+        });
+      }
+    }, {
+      key: 'renableCron',
+      value: function renableCron(row, event) {
+        _jquery2.default.ajax({
+          url: URL + "/cron/" + row._id,
+          dataType: 'json',
+          crossDomain: true,
+          type: 'PUT',
+          contentType: "application/json;charset=utf-8",
+          cache: false,
+          data: (0, _stringify2.default)({ enabled: true }),
+          success: function (data) {
+            console.log(data);
+            this.loadCrons();
+          }.bind(this),
+          error: function (xhr, status, err) {
+            console.log("url", status, err.toString());
+          }.bind(this)
+        });
+      }
+    }, {
+      key: 'deleteReport',
+      value: function deleteReport(row, event) {
+        console.log(row);
+        _jquery2.default.ajax({
+          url: URL + "/report/" + row._id,
+          dataType: 'json',
+          crossDomain: true,
+          type: 'DELETE',
+          cache: false,
+          success: function (data) {
+            console.log(data);
+            this.loadReports();
+          }.bind(this),
+          error: function (xhr, status, err) {
+            console.log("url", status, err.toString());
+          }.bind(this)
+        });
+      }
+    }, {
       key: 'cronActionsFormatter',
       value: function cronActionsFormatter(cell, row) {
         var _this2 = this;
   
+        var enableBtn = _react2.default.createElement('div', null);
+        if (!row.enabled) {
+          enableBtn = _react2.default.createElement(
+            'div',
+            null,
+            _react2.default.createElement(
+              'button',
+              { className: 'btn btn-warning', onClick: function onClick() {
+                  return _this2.renableCron(row);
+                } },
+              _react2.default.createElement('span', { className: 'glyphicon glyphicon-trash' }),
+              ' Re-enable'
+            )
+          );
+        }
+        return _react2.default.createElement(
+          'div',
+          null,
+          _react2.default.createElement(
+            'button',
+            { className: 'btn btn-danger', onClick: function onClick() {
+                return _this2.deleteCron(row);
+              } },
+            _react2.default.createElement('span', { className: 'glyphicon glyphicon-trash' }),
+            ' Delete'
+          ),
+          enableBtn
+        );
+      }
+    }, {
+      key: 'reportActionsFormatter',
+      value: function reportActionsFormatter(cell, row) {
+        var _this3 = this;
+  
         return _react2.default.createElement(
           'button',
-          { className: 'btn btn-danger' },
-          _react2.default.createElement('span', { onClick: function onClick() {
-              return _this2.deleteCron(cell);
-            }, className: 'glyphicon glyphicon-trash' }),
+          { className: 'btn btn-danger', onClick: function onClick() {
+              return _this3.deleteReport(row);
+            } },
+          _react2.default.createElement('span', { className: 'glyphicon glyphicon-trash' }),
           ' Delete'
         );
       }
@@ -2266,7 +2317,7 @@ module.exports =
             { className: 'row' },
             _react2.default.createElement(
               'div',
-              { className: 'col-lg-12' },
+              { className: 'col-lg-8' },
               _react2.default.createElement(
                 _reactBootstrap.PageHeader,
                 null,
@@ -2279,7 +2330,7 @@ module.exports =
             { className: 'row' },
             _react2.default.createElement(
               'div',
-              { className: 'col-lg-12' },
+              { className: 'col-lg-8' },
               _react2.default.createElement(
                 _reactBootstrap.Panel,
                 { header: _react2.default.createElement(
@@ -2299,7 +2350,7 @@ module.exports =
                       { data: reports, pagination: true },
                       _react2.default.createElement(
                         _reactBootstrapTable.TableHeaderColumn,
-                        { width: '180', dataField: '_id', isKey: true, dataAlign: 'center', dataSort: true },
+                        { width: '100', dataField: '_id', isKey: true, dataAlign: 'center', dataSort: true },
                         'ID'
                       ),
                       _react2.default.createElement(
@@ -2319,7 +2370,7 @@ module.exports =
                       ),
                       _react2.default.createElement(
                         _reactBootstrapTable.TableHeaderColumn,
-                        { width: '150', dataField: 'action', dataFormat: reportActionsFormatter, 'export': false },
+                        { width: '150', dataField: 'action', dataFormat: this.reportActionsFormatter, 'export': false },
                         'Actions'
                       )
                     )
@@ -2333,7 +2384,7 @@ module.exports =
             { className: 'row' },
             _react2.default.createElement(
               'div',
-              { className: 'col-lg-12' },
+              { className: 'col-lg-8' },
               _react2.default.createElement(
                 _reactBootstrap.PageHeader,
                 null,
@@ -2346,14 +2397,14 @@ module.exports =
             { className: 'row' },
             _react2.default.createElement(
               'div',
-              { className: 'col-lg-12' },
+              { className: 'col-lg-8' },
               _react2.default.createElement(
                 _reactBootstrap.Panel,
                 { header: _react2.default.createElement(
                     'span',
                     null,
                     _react2.default.createElement('i', { className: 'fa fa-bar-chart-o fa-fw' }),
-                    ' Last Reports'
+                    ' Last Crons'
                   ) },
                 _react2.default.createElement(
                   'div',
@@ -2366,7 +2417,7 @@ module.exports =
                       { data: crons, pagination: true },
                       _react2.default.createElement(
                         _reactBootstrapTable.TableHeaderColumn,
-                        { width: '180', dataField: '_id', isKey: true, dataAlign: 'center', dataSort: true },
+                        { width: '100', dataField: '_id', isKey: true, dataAlign: 'center', dataSort: true },
                         'ID'
                       ),
                       _react2.default.createElement(
@@ -2831,6 +2882,10 @@ module.exports =
   
   var _defineProperty3 = _interopRequireDefault(_defineProperty2);
   
+  var _stringify = __webpack_require__(25);
+  
+  var _stringify2 = _interopRequireDefault(_stringify);
+  
   var _getPrototypeOf = __webpack_require__(30);
   
   var _getPrototypeOf2 = _interopRequireDefault(_getPrototypeOf);
@@ -2881,9 +2936,15 @@ module.exports =
   
   var _jquery2 = _interopRequireDefault(_jquery);
   
+  var _history = __webpack_require__(41);
+  
+  var _history2 = _interopRequireDefault(_history);
+  
   function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
   
   var title = 'New Notification';
+  
+  var URL = "api";
   
   var Newcron = function (_Component) {
     (0, _inherits3.default)(Newcron, _Component);
@@ -2938,19 +2999,24 @@ module.exports =
     }, {
       key: 'postNewCron',
       value: function postNewCron() {
-        console.log("posting");
         _jquery2.default.ajax({
-          url: "http://192.168.99.100:8001/cron",
+          url: URL + "/cron",
           dataType: 'json',
           crossDomain: true,
+          contentType: "application/json;charset=utf-8",
           cache: false,
-          type: "post",
-          data: this.state,
+          type: "POST",
+          data: (0, _stringify2.default)(this.state),
           success: function (data) {
-            console.log("success");
+            _history2.default.push('/');
           }.bind(this),
           error: function (xhr, status, err) {
-            console.log("url", status, err.toString());
+            var newState = (0, _reactAddonsUpdate2.default)(this.state, {
+              error: { visible: { $set: true },
+                description: { $set: 'There was an error posting the CRON' }
+              }
+            });
+            this.setState(newState);
           }.bind(this)
         });
       }
@@ -3003,13 +3069,8 @@ module.exports =
     }, {
       key: 'isURL',
       value: function isURL(url) {
-        var pattern = new RegExp('^(https?:\\/\\/)?' + // protocol
-        '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.?)+[a-z]{2,}|' + // domain name
-        '((\\d{1,3}\\.){3}\\d{1,3}))' + // OR ip (v4) address
-        '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' + // port and path
-        '(\\?[;&a-z\\d%_.~+=-]*)?' + // query string
-        '(\\#[-a-z\\d_]*)?$', 'i'); // fragment locator
-        return pattern.test(url);
+        var urlregex = /^(https?|ftp):\/\/([a-zA-Z0-9.-]+(:[a-zA-Z0-9.&%$-]+)*@)*((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]?)(\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])){3}|([a-zA-Z0-9-]+\.)*[a-zA-Z0-9-]+\.(com|edu|gov|int|mil|net|org|biz|arpa|info|name|pro|aero|coop|museum|[a-zA-Z]{2}))(:[0-9]+)*(\/($|[a-zA-Z0-9.,?'\\+&%$#=~_-]+))*$/;
+        return urlregex.test(url);
       }
     }, {
       key: 'isEmail',
@@ -3082,7 +3143,7 @@ module.exports =
                         _react2.default.createElement(
                           _reactBootstrap.HelpBlock,
                           null,
-                          'www.myapi.com/me'
+                          'http://www.myapi.com/me'
                         )
                       ),
                       _react2.default.createElement(
