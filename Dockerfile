@@ -11,7 +11,6 @@ RUN npm install
 # Bundle app source
 COPY . /usr/src/app
 
-EXPOSE 8080
+EXPOSE 3001
 
-RUN npm run build -- --release
-CMD [ "npm", "run start --production" ]
+CMD [ "npm", "run", "start", "--production" ]
